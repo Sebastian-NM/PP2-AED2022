@@ -75,7 +75,7 @@ void mainMenu(){
         break;
     
     case 4:
-        printf("Statistics");
+        statisticsMenu();
         break;
     
     default:
@@ -259,7 +259,56 @@ void countriesMenu(){
     }  
 }
 
+void statisticsMenu()
+{
+     //HEADER
+    system("cls");
+    int option;
+    printf("[Statistics]");
+    printf("\nChoose one of the following options:\n------------------------------------\n1.Total Cyberattacks sent\n2.Total Cyberattacks received\n3.Cyberattacks sent and received by country\n4.Cyberattacks sent and received by type\n5.Cyberattacks sent and received by responsible\n6.Top 3 countries with the most received attacks\n7.Top 3 cybercriminals with the highest amount of attacks\n8.Go back\n");
+    scanf("%i", &option);
+    //END HEADER
+    
+    switch (option)
+    {
+    case 1:
+        printf("Total Cyberattacks sent");
+        break;
+    
+    case 2:
+        printf("Total Cyberattacks received");
+        break;
 
+    case 3:
+        printf("Cyberattacks sent and received by country");
+        break;
+    
+    case 4:
+        printf("Cyberattacks sent and received by type");
+        break;
+    
+    case 5:
+        printf("Cyberattacks sent and received by responsible");
+        break;
+    case 6:
+        printf("Top 3 countries with the most received attacks");
+        break;
+    case 7:
+         printf("Top 3 Cyber Criminals with the highest amount of attacks");
+         break;
+    case 8:
+        mainMenu();
+        break;
+
+    default:
+        system("cls");
+        printf("[Invalid Input]");
+        sleep(1);
+        countriesMenu();
+        break;
+    }  
+
+}
 
 
 // | | | | | | | | | | | | | | Main | | | | | | | | | | | | | |  
