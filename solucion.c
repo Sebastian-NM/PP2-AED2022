@@ -226,7 +226,20 @@ void cyberCriminalsMenu(treeNode *treeRoot, listCriminal *LtCriminal)
         break;
 
     case 3:
-        showCriminal(LtCriminal);
+        system("cls");
+        if (LtCriminal == NULL)
+        {
+            printf("No Criminals found.");
+        }
+        else
+        {
+            showCriminal(LtCriminal);
+        }
+        char nothing[10];
+        printf("\n[Press any key to return]\n");
+        fflush(stdin);
+        gets(nothing);
+        cyberCriminalsMenu(treeRoot, LtCriminal);
         break;
 
     case 4:
@@ -248,6 +261,7 @@ void cyberCriminalsMenu(treeNode *treeRoot, listCriminal *LtCriminal)
 
 void countriesMenu(treeNode *treeRoot, listCriminal *LtCriminal)
 {
+    fflush(stdin);
 
     // HEADER
     system("cls");
@@ -266,6 +280,7 @@ void countriesMenu(treeNode *treeRoot, listCriminal *LtCriminal)
     case 2:
         deleteCountry(treeRoot, LtCriminal);
         break;
+        fflush(stdin);
 
     case 3:
         system("cls");
@@ -488,7 +503,7 @@ void addCriminal(treeNode *treeRoot, listCriminal *LtCriminal)
         const char *src;
         LtCriminal->head = (cyberCriminal *)malloc(sizeof(cyberCriminal));
         system("cls");
-        printf("[Add Criminal]");
+        printf("[Add Criminal]\n");
 
         char idCriminal[100];
         printf("Criminal's ID:");
@@ -534,6 +549,7 @@ void addCriminal(treeNode *treeRoot, listCriminal *LtCriminal)
         system("cls");
         printf("Criminal added successfully.");
         sleep(1);
+        fflush(stdin);
         cyberCriminalsMenu(treeRoot, LtCriminal);
     }
 
@@ -595,6 +611,7 @@ void addCriminal(treeNode *treeRoot, listCriminal *LtCriminal)
     system("cls");
     printf("Criminal added successfully.");
     sleep(1);
+    fflush(stdin);
     cyberCriminalsMenu(treeRoot, LtCriminal);
 }
 
@@ -683,7 +700,7 @@ void showCriminal(listCriminal *LtCriminal)
         printf("\nNacionality:%s", i->nacionality);
         printf("\nOrganization:%s", i->organization);
         printf("\nKnown Attacks:%s", i->knownAttacks);
-        printf("-----------------------------------------");
+        printf("\n-----------------------------------------");
     }
 }
 
