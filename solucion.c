@@ -69,7 +69,7 @@ struct treeNode
     struct treeNode *left;
 };
 
-// | | | | | | | | | | | | | | Utilities | | | | | | | | | | | |
+/// | | | | | | | | | | | | | | Utilities | | | | | | | | | | | |
 
 char *mystrcpy(char *dst, const char *src)
 {
@@ -79,7 +79,7 @@ char *mystrcpy(char *dst, const char *src)
     return ptr;
 }
 
-// | | | | | | | | | | | | | | Menus | | | | | | | | | | | | | |
+/// | | | | | | | | | | | | | | Menus | | | | | | | | | | | | | |
 
 void mainMenu(treeNode *treeRoot, listCriminal *LtCriminal, cyberAttackTypeList *catl)
 {
@@ -382,7 +382,7 @@ void statisticsMenu(treeNode *treeRoot, listCriminal *LtCriminal, cyberAttackTyp
     }
 }
 
-// | | | | | | | | | | | BS TREE | | | |  | | | | | | | | | | |
+/// | | | | | | | | | | | BS TREE | | | |  | | | | | | | | | | |
 
 struct treeNode *search(struct treeNode *root, int x)
 {
@@ -481,9 +481,9 @@ void inOrder(struct treeNode *root)
     }
 }
 
-// | | | | | | | | | | | GRAPH  | | | |  | | | | | | | | | | |
+///| | | | | | | | | | | GRAPH  | | | |  | | | | | | | | | | |
 
-//| | | | | | | | | | CYBERATTACK TYPE METHODS | | | | | | | |
+///| | | | | | | | | | CYBERATTACK TYPE METHODS | | | | | | | |
 
 cyberAttackTypeList *newListcatl(void)
 {
@@ -532,7 +532,7 @@ cyberAttackType *createCyberAttackType()
     return novus;
 }
 
-void addCyberAttackType(cyberAttackTypeList *catl)
+void addCyberAttackType(treeNode *treeRoot, listCriminal *LtCriminal,cyberAttackTypeList *catl)
 {
     cyberAttackType *n, *aux;
     cyberAttackType *novus = createCyberAttackType();
@@ -551,6 +551,10 @@ void addCyberAttackType(cyberAttackTypeList *catl)
         }
         aux->next = novus;
     }
+    system("cls");
+    printf("[Data added]");
+    sleep(1);
+    cyberAttackTypesMenu(treeRoot, LtCriminal, catl);
 }
 
 void showCyberAttackTypes(treeNode *treeRoot, listCriminal *LtCriminal, const cyberAttackTypeList *catl)
@@ -568,7 +572,8 @@ void showCyberAttackTypes(treeNode *treeRoot, listCriminal *LtCriminal, const cy
     for (aux = catl->first; aux != NULL; aux = aux->next)
     {
         printf(" - - - - - - - - - - - - - - - - - - - - - - - - - \n");
-        printf("%i. %s\n", n, aux->name);
+        printf("%i.\n", n);
+        printf(" Name: %s\n", aux->name);
         printf(" Code: %s\n", aux->code);
         printf(" Description: %s\n", aux->description);
         printf(" Channels: %s\n", aux->channels);
@@ -585,7 +590,7 @@ void modifyType(treeNode *treeRoot, char *code, listCriminal *LtCriminal, const 
 {
     system("cls");
     printf("\nCODE: %s\n", aux->code);
-    printf("¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯\n");
+    printf("-------------------------\n");
     char *specifications[100];
     const char *src;
     int x;
@@ -735,7 +740,7 @@ void deleteCyberAttackType(treeNode *treeRoot, listCriminal *LtCriminal, cyberAt
     cyberAttackTypesMenu(treeRoot, LtCriminal, catl);
 }
 
-//| | | | | | | | | | | CYBER CRIMINAL METHODS | | | | | | | | | | |
+///| | | | | | | | | | | CYBER CRIMINAL METHODS | | | | | | | | | | |
 
 listCriminal *newListCriminal(void)
 {
@@ -959,7 +964,7 @@ void updateCriminal(treeNode *treeRoot, listCriminal *LtCriminal, cyberAttackTyp
 {
 }
 
-//| | | | | | | | | | | COUNTRY METHODS | | | | | | | | | | |
+///| | | | | | | | | | | COUNTRY METHODS | | | | | | | | | | |
 
 void showCountry(treeNode *treeNode)
 {
@@ -1154,7 +1159,7 @@ void updateCountry(treeNode *treeRoot, listCriminal *LtCriminal, cyberAttackType
     }
 }
 
-// | | | | | | | | | | | | | | Main | | | | | | | | | | |  | |
+/// | | | | | | | | | | | | | | Main | | | | | | | | | | |  | |
 void main()
 {
     listCriminal *LtCriminal;
