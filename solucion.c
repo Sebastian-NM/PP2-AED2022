@@ -7,6 +7,7 @@
 
 // Struct Declarations
 typedef struct cyberAttackType cyberAttackType;
+typedef struct cyberAttackTypeList cyberAttackTypeList;
 typedef struct cyberAttack cyberAttack;
 typedef struct cyberCriminal cyberCriminal;
 typedef struct listCriminal listCriminal;
@@ -20,6 +21,12 @@ struct cyberAttackType
     char *name;
     char *description;
     char *channels;
+    cyberAttackType *next;
+};
+
+struct cyberAttackTypeList
+{
+    cyberAttackType *first;
 };
 
 struct cyberCriminal
@@ -162,7 +169,7 @@ void cyberAttackMenu(treeNode *treeRoot, listCriminal *LtCriminal)
     }
 }
 
-void cyberAttackTypesMenu(treeNode *treeRoot, listCriminal *LtCriminal)
+void cyberAttackTypesMenu(treeNode *treeRoot, cyberAttackTypeList *catl)
 {
 
     // HEADER
@@ -176,30 +183,30 @@ void cyberAttackTypesMenu(treeNode *treeRoot, listCriminal *LtCriminal)
     switch (option)
     {
     case 1:
-        printf("Add a new type");
+        addCyberAttackType(treeRoot,catl);
         break;
 
     case 2:
-        printf("Delete a type");
+        deleteCyberAttackType(treeRoot,catl);
         break;
 
     case 3:
-        printf("Show types");
+        showCyberAttackTypes(treeRoot,catl);
         break;
 
     case 4:
-        printf("Update");
+        updatecyberAttackType(treeRoot,catl);
         break;
 
     case 5:
-        mainMenu(treeRoot, LtCriminal);
+        mainMenu(treeRoot, catl);
         break;
 
     default:
         system("cls");
         printf("[Invalid Input]");
         sleep(1);
-        cyberAttackTypesMenu(treeRoot, LtCriminal);
+        cyberAttackTypesMenu(treeRoot, catl);
         break;
     }
 }
@@ -230,6 +237,7 @@ void cyberCriminalsMenu(treeNode *treeRoot, listCriminal *LtCriminal)
         if (LtCriminal == NULL)
         {
             printf("No Criminals found.");
+            sleep(1);
         }
         else
         {
@@ -483,6 +491,251 @@ void inOrder(struct treeNode *root)
 }
 
 // | | | | | | | | | | | GRAPH  | | | |  | | | | | | | | | | |
+
+//| | | | | | | | | | CYBERATTACK TYPE METHODS | | | | | | | | 
+
+
+cyberAttackTypeList *newListcatl(void)
+{
+    cyberAttackTypeList *catl;
+    catl = (cyberAttackTypeList *)malloc(sizeof(cyberAttackTypeList));
+    catl->first = NULL;
+    return catl;
+}
+
+cyberAttackType *createCyberAttackType()
+{
+    cyberAttackType *novus;
+    char *specifications[100];
+    const char *src;
+    novus = (cyberAttackType *)malloc(sizeof(cyberAttackType));
+    novus->next = NULL;
+
+    printf("Code:\n");
+    fflush(stdin);
+    gets(specifications);
+    src = specifications;
+    char *dst = malloc(sizeof(char)*(strlen(src)+1));
+    novus->code = mystrcpy(dst,src);
+
+    printf("Name:\n");
+    fflush(stdin);
+    gets(specifications);
+    src = specifications;
+    char *dst1 = malloc(sizeof(char)*(strlen(src)+1));
+    novus->name = mystrcpy(dst1,src);
+
+    printf("Description:\n");
+    fflush(stdin);
+    gets(specifications);
+    src = specifications;
+    char *dst2 = malloc(sizeof(char)*(strlen(src)+1));
+    novus->description = mystrcpy(dst2,src);
+
+    printf("Channels:\n");
+    fflush(stdin);
+    gets(specifications);
+    src = specifications;
+    char *dst3 = malloc(sizeof(char)*(strlen(src)+1));
+    novus->channels = mystrcpy(dst3,src);
+
+    return novus;
+}
+
+void addCyberAttackType(treeNode *treeRoot,cyberAttackTypeList *catl)
+{
+    cyberAttackType *n, *aux;
+    cyberAttackType *novus = createCyberAttackType();
+
+    if (catl->first == NULL)
+    {
+        catl->first = novus;
+    }
+    else
+    {
+        n = catl->first;
+        while (n != NULL)
+        {
+            aux = n;
+            n = n->next;
+        }
+        aux->next = novus;
+    }
+}
+
+void showCyberAttackTypes(treeNode *treeRoot, const cyberAttackTypeList *catl)
+{
+    system("cls");
+    if(catl->first == NULL){
+        printf("\n*No cyberattack types to show*\n");
+        sleep(1);
+        cyberAttackTypesMenu(treeRoot,catl);
+    }
+    cyberAttackType *aux;
+    int n = 1;
+    printf("Cyberattack types:\n");
+    for (aux = catl->first; aux != NULL; aux = aux->next)
+    {
+        printf(" - - - - - - - - - - - - - - - - - - - - - - - - - \n");
+        printf("%i. %s\n",n,aux->name);
+        printf(" Code: %s\n",aux->code);
+        printf(" Description: %s\n",aux->description);
+        printf(" Channels: %s\n",aux->channels);
+        n++;
+    }
+}
+
+void modify(treeNode *treeRoot, char *code, const cyberAttackTypeList *catl, cyberAttackType *aux)
+{
+    system("cls");
+    printf("\nCODE: %s\n",aux->code);
+    printf("¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯\n");
+    char *specifications[100];
+    const char *src;
+    int x;
+    int option;
+
+    printf("Number to modify \n1.Code\n2.Name\n3.Description\n4.Channels\n5.Back\n");
+    fflush(stdin);
+    scanf("%d",&option);
+
+    switch(option)
+    {
+    case 1:
+        system("cls");
+        printf("Type new code:\n");
+        fflush(stdin);
+        gets(specifications);
+        src = specifications;
+        char *dsta = malloc(sizeof(char)*(strlen(src)+1));
+        aux->code = mystrcpy(dsta,src);
+        system("cls");
+        printf("\nData updated\n");
+        sleep(1);
+        modify(treeRoot,code,catl,aux);
+        break;
+
+    case 2:
+        system("cls");
+        printf("Type new name:\n");
+        fflush(stdin);
+        gets(specifications);
+        src = specifications;
+        char *dstb = malloc(sizeof(char)*(strlen(src)+1));
+        aux->name = mystrcpy(dstb,src);
+        system("cls");
+        printf("\nData updated\n");
+        sleep(1);
+        modify(treeRoot,code,catl,aux);
+        break;
+    case 3:
+        system("cls");
+        printf("Type new description:\n");
+        fflush(stdin);
+        gets(specifications);
+        src = specifications;
+        char *dstc = malloc(sizeof(char)*(strlen(src)+1));
+        aux->description = mystrcpy(dstc,src);
+        system("cls");
+        printf("\nData updated\n");
+        sleep(1);
+        modify(treeRoot,code,catl,aux);
+        break;
+    case 4:
+        system("cls");
+        printf("Type new channels:\n");
+        fflush(stdin);
+        gets(specifications);
+        src = specifications;
+        char *dstd = malloc(sizeof(char)*(strlen(src)+1));
+        aux->channels = mystrcpy(dstd,src);
+        system("cls");
+        printf("\nData updated\n");
+        sleep(1);
+        modify(treeRoot,code,catl,aux);
+        break;
+    case 5:
+        cyberAttackTypesMenu(treeRoot,catl);
+        break;
+    default:
+        system("cls");
+        printf("\n\n**Entrada invalida**\n");
+        sleep(2);
+        modify(treeRoot,code,catl,aux);
+    }
+}
+
+void updatecyberAttackType(treeNode *treeRoot,const cyberAttackTypeList *catl)
+{
+    system("cls");
+    cyberAttackType *aux;
+    int status = 0;
+    char code[100];
+    printf("\nCyberattack type code to modify:\n");
+    fflush(stdin);
+    scanf("%s",code);
+
+    for (aux = catl->first; aux != NULL; aux = aux->next){
+        if (strcmp(aux->code, code) == 0){
+            status++;
+            modify(treeRoot,code,catl,aux);
+        }
+    }
+
+    if (status == 0)
+    {
+        printf("\n**Cyberttack type not registered**");
+        sleep(3);
+        modify(treeRoot,code,catl,aux);
+    }
+}
+
+void deleteCyberAttackType(treeNode *treeRoot,cyberAttackTypeList *catl)
+{
+    system("cls");
+    if(catl->first == NULL){
+        printf("\n*No cyberattack types registered*\n");
+        sleep(1);
+        cyberAttackMenu(treeRoot,catl);
+    }
+    cyberAttackType *aux;
+    int n = 0;
+    char *typeToDelete[100];
+    printf("Cyberattack type code to delete: \n");
+    fflush(stdin);
+    gets(typeToDelete);
+    cyberAttackType *aux2 = catl->first;
+
+    for (aux = catl->first; aux != NULL; aux = aux->next)
+    {
+        if (strcmp(aux->code, typeToDelete) == 0)
+        {
+            if (n>1){
+                aux2 = aux2->next;
+            }
+            if (aux == aux2)
+            {
+                catl->first = aux2->next;
+                free(aux);
+                free(aux2);
+                printf("\n[Cyberattack type erased]\n");
+                sleep(1);
+                cyberAttackMenu(treeRoot,catl);
+            }
+            aux2->next = aux->next;
+            free(aux);
+            printf("\n[Cyberattack type erased]\n");
+            sleep(1);
+            cyberAttackMenu(treeRoot,catl);
+        }
+        n++;
+    }
+    printf("\n*Cyberattack type not registered*");
+    sleep(1);
+    cyberAttackMenu(treeRoot,catl);
+}
+
+
 
 //| | | | | | | | | | | CRIMINAL METHODS | | | | | | | | | | |
 
@@ -908,6 +1161,9 @@ void main()
 {
     listCriminal *LtCriminal;
     LtCriminal = newListCriminal();
+
+    cyberAttackTypeList *catl;
+    catl = newListcatl();
 
     struct treeNode *root = NULL;
     mainMenu(root, LtCriminal);
