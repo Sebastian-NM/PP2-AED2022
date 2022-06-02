@@ -796,6 +796,15 @@ cyberCriminal *createCyberCriminal()
 
 void addCriminal(treeNode *treeRoot, listCriminal *LtCriminal, cyberAttackTypeList *catl)
 {
+    if (treeRoot == NULL)
+    {
+        system("cls");
+        printf("Register countries to add a cyber criminal");
+        sleep(3);
+        system("cls");
+        cyberCriminalsMenu(treeRoot, LtCriminal, catl);
+    }
+
     cyberCriminal *n, *aux;
     cyberCriminal *novus = createCyberCriminal();
 
