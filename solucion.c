@@ -35,10 +35,10 @@ struct cyberCriminal
 {
     char *ID;
     char *organization;
-    char *description;
     country *nacionality;
     char *knownAttacks;
     cyberCriminal *next;
+    int *deletable;
 };
 
 struct listCriminal
@@ -772,12 +772,12 @@ cyberCriminal *createCyberCriminal(treeNode *treeRoot, listCriminal *LtCriminal,
     char *dst = malloc(sizeof(char) * (strlen(src) + 1));
     novus->ID = mystrcpy(dst, src);
 
-    printf("Description: ");
+    printf("Organization: ");
     fflush(stdin);
     gets(specifications);
     src = specifications;
-    char *dst2 = malloc(sizeof(char) * (strlen(src) + 1));
-    novus->description = mystrcpy(dst2, src);
+    char *dst5 = malloc(sizeof(char) * (strlen(src) + 1));
+    novus->organization = mystrcpy(dst5, src);
 
     printf("Known attacks: ");
     fflush(stdin);
@@ -788,12 +788,7 @@ cyberCriminal *createCyberCriminal(treeNode *treeRoot, listCriminal *LtCriminal,
 
     novus->nacionality = chooseNacionality(treeRoot, LtCriminal, catl);
 
-    printf("Organization: ");
-    fflush(stdin);
-    gets(specifications);
-    src = specifications;
-    char *dst5 = malloc(sizeof(char) * (strlen(src) + 1));
-    novus->organization = mystrcpy(dst5, src);
+    novus->deletable = 0;
 
     return novus;
 }
@@ -858,24 +853,35 @@ void deleteCriminal(treeNode *treeRoot, listCriminal *LtCriminal, cyberAttackTyp
     {
         if (strcmp(aux->ID, idCriminal) == 0)
         {
-            if (n > 1)
+            if (aux->deletable == 0)
             {
-                aux2 = aux2->next;
-            }
-            if (aux == aux2)
-            {
-                LtCriminal->head = aux2->next;
+                if (n > 1)
+                {
+                    aux2 = aux2->next;
+                }
+                if (aux == aux2)
+                {
+                    LtCriminal->head = aux2->next;
+                    free(aux);
+                    free(aux2);
+                    printf("\nCyber criminal erased.\n");
+                    sleep(1);
+                    cyberCriminalsMenu(treeRoot, LtCriminal, catl);
+                }
+                aux2->next = aux->next;
                 free(aux);
-                free(aux2);
                 printf("\nCyber criminal erased.\n");
                 sleep(1);
                 cyberCriminalsMenu(treeRoot, LtCriminal, catl);
             }
-            aux2->next = aux->next;
-            free(aux);
-            printf("\nCyber criminal erased.\n");
-            sleep(1);
-            cyberCriminalsMenu(treeRoot, LtCriminal, catl);
+            else
+            {
+                system("cls");
+                printf("Error: the country is being used");
+                sleep(1);
+                cyberCriminalsMenu(treeRoot, LtCriminal, catl);
+            }
+            
         }
         n++;
     }
@@ -900,11 +906,9 @@ void showCriminal(treeNode *treeRoot, listCriminal *LtCriminal, cyberAttackTypeL
     for (i = LtCriminal->head; i != NULL; i = i->next)
     {
         printf("\nID:%s", i->ID);
-        printf("\nDescription:%s", i->description);
-        printf("\nNacionality:%s", i->nacionality->name);
         printf("\nOrganization:%s", i->organization);
+        printf("\nNacionality:%s", i->nacionality->name);
         printf("\nKnown Attacks:%s", i->knownAttacks);
-        printf("\n - - - - - - - - - - - - - - - - - - - - - - - - -");
         n++;
     }
 
@@ -925,7 +929,7 @@ void modifyCyberCriminal(treeNode *treeRoot, char *idCyberCriminal, listCriminal
     const char *src;
     int option;
 
-    printf("Number to modify \n1.ID\n2.Description\n3.Known attacks\n4.Nacionality\n5.Organization\n6.Back\n");
+    printf("Number to modify \n1.ID\n2.Nacionality\n3.Organization\n4.Known Attacks\n5.Back\n");
     fflush(stdin);
     scanf("%d", &option);
 
@@ -947,34 +951,6 @@ void modifyCyberCriminal(treeNode *treeRoot, char *idCyberCriminal, listCriminal
 
     case 2:
         system("cls");
-        printf("New description: ");
-        fflush(stdin);
-        gets(specifications);
-        src = specifications;
-        char *dst2 = malloc(sizeof(char) * (strlen(src) + 1));
-        aux->description = mystrcpy(dst2, src);
-        system("cls");
-        printf("\nData updated.\n");
-        sleep(1);
-        modifyCyberCriminal(treeRoot, idCyberCriminal, LtCriminal, catl, aux);
-        break;
-
-    case 3:
-        system("cls");
-        printf("New known attacks: ");
-        fflush(stdin);
-        gets(specifications);
-        src = specifications;
-        char *dst3 = malloc(sizeof(char) * (strlen(src) + 1));
-        aux->knownAttacks = mystrcpy(dst3, src);
-        system("cls");
-        printf("\nData updated.\n");
-        sleep(1);
-        modifyCyberCriminal(treeRoot, idCyberCriminal, LtCriminal, catl, aux);
-        break;
-
-    case 4:
-        system("cls");
         printf("New nacionality: ");
         fflush(stdin);
         gets(specifications);
@@ -986,8 +962,7 @@ void modifyCyberCriminal(treeNode *treeRoot, char *idCyberCriminal, listCriminal
         sleep(1);
         modifyCyberCriminal(treeRoot, idCyberCriminal, LtCriminal, catl, aux);
         break;
-
-    case 5:
+    case 3:
         system("cls");
         printf("New organization:");
         fflush(stdin);
@@ -1001,7 +976,21 @@ void modifyCyberCriminal(treeNode *treeRoot, char *idCyberCriminal, listCriminal
         modifyCyberCriminal(treeRoot, idCyberCriminal, LtCriminal, catl, aux);
         break;
 
-    case 6:
+    case 4:
+        system("cls");
+        printf("New known attacks: ");
+        fflush(stdin);
+        gets(specifications);
+        src = specifications;
+        char *dst3 = malloc(sizeof(char) * (strlen(src) + 1));
+        aux->knownAttacks = mystrcpy(dst3, src);
+        system("cls");
+        printf("\nData updated.\n");
+        sleep(1);
+        modifyCyberCriminal(treeRoot, idCyberCriminal, LtCriminal, catl, aux);
+        break;
+
+    case 5:
         cyberCriminalsMenu(treeRoot, LtCriminal, catl);
         break;
 
@@ -1056,7 +1045,7 @@ country *chooseNacionality(treeNode *treeRoot, listCriminal *LtCriminal, cyberAt
     if (treeRoot == NULL)
     {
         printf("No Countries found.");
-        cyberCriminalsMenu(treeRoot, LtCriminal, catl);
+        mainMenu(treeRoot, LtCriminal, catl);
     }
     else
     {
@@ -1069,7 +1058,6 @@ country *chooseNacionality(treeNode *treeRoot, listCriminal *LtCriminal, cyberAt
 
         if (checkCountry(treeRoot, countryKey) == -1)
         {
-            system("cls");
             printf("Invalid Input.");
             sleep(1);
             chooseNacionality(treeRoot, LtCriminal, catl);
@@ -1137,13 +1125,13 @@ void addCountry(treeNode *treeRoot, listCriminal *LtCriminal, cyberAttackTypeLis
     newCountry = (country *)malloc(sizeof(country));
 
     int ID;
-    printf("\nCountry's ID:");
+    printf("\nID:");
     scanf("%d", &ID);
     fflush(stdin);
     newCountry->ID = ID;
 
     char name[100];
-    printf("Country's name:");
+    printf("Name:");
     fflush(stdin);
     gets(name);
     src = name;
@@ -1151,7 +1139,7 @@ void addCountry(treeNode *treeRoot, listCriminal *LtCriminal, cyberAttackTypeLis
     newCountry->name = mystrcpy(dst, src);
 
     char population[100];
-    printf("Country's population:");
+    printf("Population:");
     fflush(stdin);
     gets(population);
     src = population;
@@ -1207,11 +1195,11 @@ void deleteCountry(treeNode *treeRoot, listCriminal *LtCriminal, cyberAttackType
             if (search(treeRoot, key)->country->deletable == 1)
             {
                 system("cls");
-                printf("Error: the country is referenced in another instance of the records");
-                sleep(2);
+                printf("Error: the country is being used");
+                sleep(1);
                 countriesMenu(treeRoot, LtCriminal, catl);
             }
-            
+
             treeRoot = deleteNode(treeRoot, key);
             system("cls");
             printf("Country deleted successfully.");
