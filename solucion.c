@@ -13,8 +13,13 @@ typedef struct cyberCriminal cyberCriminal;
 typedef struct listCriminal listCriminal;
 typedef struct country country;
 typedef struct treeNode treeNode;
+typedef struct vertex vertex;
+typedef struct edge edge;
+typedef struct AdjList AdjList;
 country *chooseNacionality(treeNode *treeRoot, listCriminal *LtCriminal, cyberAttackTypeList *catl);
 country *findCountry(treeNode *root, int key);
+cyberAttackType *chooseCyberAttackType(treeNode *treeRoot, listCriminal *LtCriminal, cyberAttackTypeList *catl);
+cyberCriminal *chooseCyberCriminal(treeNode *treeRoot, listCriminal *LtCriminal, cyberAttackTypeList *catl);
 
 // Struct's bodies
 struct cyberAttackType
@@ -23,6 +28,7 @@ struct cyberAttackType
     char *name;
     char *description;
     char *channels;
+    char *counter;
     cyberAttackType *next;
 };
 
@@ -38,6 +44,7 @@ struct cyberCriminal
     country *nacionality;
     char *knownAttacks;
     cyberCriminal *next;
+    int *counter;
     int *deletable;
 };
 
@@ -72,6 +79,35 @@ struct treeNode
     struct treeNode *left;
 };
 
+struct vertex
+{
+    country *country;
+    vertex *next;
+    edge *ad;
+    int visited, finished;
+    int amount;
+    char *ant;
+};
+
+struct edge
+{
+    vertex *vrt;
+    edge *next;
+    int seconds; /// peso
+    int gb;
+    char *attackType;
+    char *cyberCriminal;
+};
+
+struct AdjList
+{
+    vertex *country;
+    AdjList *next;
+};
+
+vertex *headAdj = NULL;
+AdjList *ini = NULL;
+AdjList *fin = NULL;
 /// | | | | | | | | | | | | | | Utilities | | | | | | | | | | | |
 
 char *mystrcpy(char *dst, const char *src)
@@ -487,6 +523,108 @@ void inOrderOnlyKeys(struct treeNode *root)
 
 ///| | | | | | | | | | | GRAPH  | | | |  | | | | | | | | | | |
 
+void insertVertex(treeNode *treeRoot, listCriminal *LtCriminal, cyberAttackTypeList *catl)
+{
+    vertex *aux;
+    vertex *novus = (vertex *)malloc(sizeof(vertex));
+
+    novus->country = chooseNacionality(treeRoot, LtCriminal, catl);
+    novus->next = NULL;
+    novus->ad = NULL;
+    novus->visited = novus->finished = 0;
+    novus->amount = -1;
+    novus->ant = 0;
+    if (headAdj == NULL)
+    {
+        headAdj = novus;
+    }
+    else
+    {
+        aux = headAdj;
+        while (aux->next != NULL)
+        {
+            aux = aux->next;
+        }
+        aux->next = novus;
+    }
+}
+
+void createEdge(treeNode *treeRoot, listCriminal *LtCriminal, cyberAttackTypeList *catl)
+{
+    char ini, fin;
+    char *party[100];
+    const char *src;
+    edge *novus = (edge *)malloc(sizeof(edge));
+    novus->next = NULL;
+    vertex *aux;
+    vertex *aux2;
+    if (headAdj == NULL)
+    {
+        printf("Graph is empty\n");
+        return; /// poner a donde retornar
+    }
+
+    printf("Attacking country: ");
+    ini = chooseNacionality(treeRoot, LtCriminal, catl);
+
+    printf("\nAttacked country: ");
+    fin = chooseNacionality(treeRoot, LtCriminal, catl);
+
+    printf("\nDuration of attack in seconds: ");
+    scanf("%i", &novus->seconds);
+    printf("\nAmount of gygabites affected: ");
+    scanf("%i", &novus->gb);
+
+    novus->attackType = chooseCyberAttackType(treeRoot, LtCriminal, catl);
+
+    novus->cyberCriminal = chooseCyberCriminal(treeRoot, LtCriminal, catl);
+
+    aux = headAdj;
+    aux2 = headAdj;
+    while (aux2 != NULL)
+    {
+        if (aux2->country == fin)
+        {
+            break;
+        }
+        aux2 = aux2->next;
+    }
+    if (aux2 == NULL)
+    {
+        printf("Vertex not found\n");
+        return;
+    }
+    while (aux != NULL)
+    {
+        if (aux->country == ini)
+        {
+            agregaredge(aux, aux2, novus);
+            return;
+        }
+        aux = aux->next;
+    }
+    if (aux == NULL)
+        printf("Vertex not found\n");
+}
+
+void agregaredge(vertex *aux, vertex *aux2, edge *novus)
+{
+    edge *a;
+    if (aux->ad == NULL)
+    {
+        aux->ad = novus;
+        novus->vrt = aux2;
+    }
+    else
+    {
+        a = aux->ad;
+        while (a->next != NULL)
+            a = a->next;
+        novus->vrt = aux2;
+        a->next = novus;
+    }
+}
+
 ///| | | | | | | | | | CYBERATTACK TYPE METHODS | | | | | | | |
 
 cyberAttackTypeList *newListcatl(void)
@@ -588,6 +726,17 @@ void showCyberAttackTypes(treeNode *treeRoot, listCriminal *LtCriminal, const cy
     fflush(stdin);
     gets(nothing);
     cyberAttackTypesMenu(treeRoot, LtCriminal, catl);
+}
+
+void showCyberAttackTypesWithCodes(treeNode *treeRoot, listCriminal *LtCriminal, const cyberAttackTypeList *catl)
+{
+    cyberAttackType *aux;
+    int n = 1;
+    for (aux = catl->first; aux != NULL; aux = aux->next)
+    {
+        printf("%i.%s:%s\n", n, aux->code, aux->name);
+        n++;
+    }
 }
 
 void modifyType(treeNode *treeRoot, char *code, listCriminal *LtCriminal, const cyberAttackTypeList *catl, cyberAttackType *aux)
@@ -744,7 +893,86 @@ void deleteCyberAttackType(treeNode *treeRoot, listCriminal *LtCriminal, cyberAt
     cyberAttackTypesMenu(treeRoot, LtCriminal, catl);
 }
 
+cyberAttackType *chooseCyberAttackType(treeNode *treeRoot, listCriminal *LtCriminal, cyberAttackTypeList *catl)
+{
+    if (catl->first == NULL)
+    {
+        printf("No cyber attacks types found.");
+        mainMenu(treeRoot, LtCriminal, catl);
+    }
+    else
+    {
+        char typeID[100];
+        cyberAttackType *aux;
+        int status = 0;
+
+        printf("Available types:");
+        showCyberAttackTypesWithCodes(treeRoot, LtCriminal, catl);
+
+        printf("\n\nSelected type:");
+        fflush(stdin);
+        scanf("%s", &typeID);
+        
+        
+        for (aux = catl->first; aux != NULL; aux = aux->next)
+        {
+            if (strcmp(aux->code, typeID) == 0)
+            {
+                status++;
+                aux->counter++;
+                return aux;
+            }
+        }
+
+        if (status == 0)
+        {
+            printf("\nInvalid input.");
+            chooseCyberAttackType(treeRoot, LtCriminal, catl);
+        }
+    }
+}
+
 ///| | | | | | | | | | | CYBER CRIMINAL METHODS | | | | | | | | | | |
+
+cyberCriminal *chooseCyberCriminal(treeNode *treeRoot, listCriminal *LtCriminal, cyberAttackTypeList *catl)
+{
+    if (LtCriminal->head == NULL)
+    {
+        printf("No cybercriminals found.");
+        mainMenu(treeRoot, LtCriminal, catl);
+    }
+    else
+    {
+        char criminalID[100];
+        cyberCriminal *aux;
+        int status = 0;
+
+        printf("Available criminals:");
+        showCriminalsWithOrganization(treeRoot, LtCriminal, catl);
+
+        printf("\n\nSelected criminal:");
+        fflush(stdin);
+        scanf("%s", &criminalID);
+        
+        
+        for (aux = catl->first; aux != NULL; aux = aux->next)
+        {
+            if (strcmp(aux->ID, criminalID) == 0)
+            {
+                status++;
+                aux->counter++;
+                return aux;
+            }
+        }
+
+        if (status == 0)
+        {
+            printf("\nInvalid input.");
+            chooseCyberCriminal(treeRoot, LtCriminal, catl);
+        }
+    }
+
+}
 
 listCriminal *newListCriminal(void)
 {
@@ -754,7 +982,7 @@ listCriminal *newListCriminal(void)
     return LtCriminal;
 }
 
-cyberCriminal *createCyberCriminal(treeNode *treeRoot, listCriminal *LtCriminal, const cyberAttackTypeList *catl)
+cyberCriminal *createCyberCriminal(treeNode *treeRoot, listCriminal *LtCriminal, cyberAttackTypeList *catl)
 {
     cyberCriminal *novus;
     char *specifications[100];
@@ -881,7 +1109,6 @@ void deleteCriminal(treeNode *treeRoot, listCriminal *LtCriminal, cyberAttackTyp
                 sleep(1);
                 cyberCriminalsMenu(treeRoot, LtCriminal, catl);
             }
-            
         }
         n++;
     }
@@ -917,6 +1144,18 @@ void showCriminal(treeNode *treeRoot, listCriminal *LtCriminal, cyberAttackTypeL
     fflush(stdin);
     gets(nothing);
     cyberCriminalsMenu(treeRoot, LtCriminal, catl);
+}
+
+void showCriminalsWithOrganization(treeNode *treeRoot, listCriminal *LtCriminal, cyberAttackTypeList *catl)
+{
+    cyberCriminal *i;
+    int n = 1;
+    for (i = LtCriminal->head; i != NULL; i = i->next)
+    {
+        printf("\nID:%s", i->ID);
+        printf("\nOrganization:%s", i->organization);
+        n++;
+    }
 }
 
 void modifyCyberCriminal(treeNode *treeRoot, char *idCyberCriminal, listCriminal *LtCriminal, const cyberAttackTypeList *catl, cyberCriminal *aux)
@@ -1049,9 +1288,9 @@ country *chooseNacionality(treeNode *treeRoot, listCriminal *LtCriminal, cyberAt
     }
     else
     {
-        printf("Available nacionalities:\n");
+        printf("Available countries:\n");
         inOrderOnlyKeys(treeRoot);
-        printf("\n\nSelected nacionality:");
+        printf("\n\nSelected country:");
         int countryKey;
         fflush(stdin);
         scanf("%d", &countryKey);
