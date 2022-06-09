@@ -643,8 +643,8 @@ void showGraph(treeNode *treeRoot, listCriminal *LtCriminal, cyberAttackTypeList
 			    printf("%s",ed->vrt->country->name);
 			    printf("[%s,",ed->attackType);
 			    printf(" %s,",ed->cyberCriminal);
-			    printf(" %i,",ed->gb);
-			    printf(" %i]  ",ed->seconds);
+			    printf(" %igb,",ed->gb);
+			    printf(" %is]  ",ed->seconds);
                 ed=ed->next;
             }
         }
@@ -697,7 +697,7 @@ void modifyGraph(treeNode *treeRoot, listCriminal *LtCriminal, cyberAttackTypeLi
         system("cls");
         printf("Enter Gb:\n");
         scanf("%d",&x);
-        ar->seconds = x;
+        ar->gb = x;
         system("cls");
         printf("\nData updated\n");
         sleep(1);
@@ -747,7 +747,7 @@ void modifyGraph(treeNode *treeRoot, listCriminal *LtCriminal, cyberAttackTypeLi
         edge*x = ar;
         edge*y;
         edge*m;
-        if (r->ad = ar){
+        if (r->ad = x){
             r->ad = x->next;
             x->next = NULL;
             printf("\nSelect the new Attacking country. ");
@@ -755,12 +755,13 @@ void modifyGraph(treeNode *treeRoot, listCriminal *LtCriminal, cyberAttackTypeLi
             while(t!=NULL){
                 if(t->country->ID == id){
                     q = t;
+                    break;
                 }
                 t = t->next;
             }
 
         }
-        else{
+        if (r->ad != x){
             y = r->ad;
             while (y->next!=x){
                 y = y->next;
@@ -773,13 +774,15 @@ void modifyGraph(treeNode *treeRoot, listCriminal *LtCriminal, cyberAttackTypeLi
             while(t!=NULL){
                 if(t->country->ID == id){
                     q = t;
+                    break;
                 }
                 t = t->next;
 
+            }
         }
         if (q->ad == NULL){
                 q->ad = x;
-            }
+        }
         else{
             m = q->ad;
             while(m->next!=NULL){
@@ -791,7 +794,6 @@ void modifyGraph(treeNode *treeRoot, listCriminal *LtCriminal, cyberAttackTypeLi
         sleep(1);
         cyberAttackMenu(treeRoot, LtCriminal, catl);
         break;*/
-
 
     case 7:
         cyberAttackMenu(treeRoot, LtCriminal, catl);
@@ -1200,7 +1202,7 @@ cyberCriminal *chooseCyberCriminal(treeNode *treeRoot, listCriminal *LtCriminal,
         printf("Available criminals:");
         showCriminalsWithOrganization(treeRoot, LtCriminal, catl);
 
-        printf("\nSelected criminal:");
+        printf("\nSelected criminal:\n");
         fflush(stdin);
         scanf("%s", &criminalID);
 
