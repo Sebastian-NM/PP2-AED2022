@@ -97,6 +97,8 @@ struct edge
     int gb;
     char *attackType;
     char *cyberCriminal;
+    char *attacker;
+    char *attacked;
 };
 
 struct AdjList
@@ -107,7 +109,8 @@ struct AdjList
 
 vertex *headAdj = NULL;
 AdjList *ini = NULL;
-AdjList *fin = NULL;
+AdjList *finale = NULL;
+
 /// | | | | | | | | | | | | | | Utilities | | | | | | | | | | | |
 
 char *mystrcpy(char *dst, const char *src)
@@ -179,7 +182,7 @@ void cyberAttackMenu(treeNode *treeRoot, listCriminal *LtCriminal, cyberAttackTy
         break;
 
     case 2:
-        printf("Manual Registration");
+        createEdge(treeRoot,LtCriminal,catl);
         break;
 
     case 3:
@@ -191,11 +194,11 @@ void cyberAttackMenu(treeNode *treeRoot, listCriminal *LtCriminal, cyberAttackTy
         break;
 
     case 5:
-        printf("Update a Cyber Attack");
+        updateGraph(treeRoot,LtCriminal,catl);
         break;
 
     case 6:
-        printf("Show Graph of Cyber Attacks");
+        showGraph(treeRoot,LtCriminal,catl);
         break;
 
     case 7:
@@ -523,12 +526,14 @@ void inOrderOnlyKeys(struct treeNode *root)
 
 ///| | | | | | | | | | | GRAPH  | | | |  | | | | | | | | | | |
 
-void insertVertex(treeNode *treeRoot, listCriminal *LtCriminal, cyberAttackTypeList *catl)
+void insertVertex(country*countryV)
 {
     vertex *aux;
     vertex *novus = (vertex *)malloc(sizeof(vertex));
+    system("cls");
 
-    novus->country = chooseNacionality(treeRoot, LtCriminal, catl);
+    novus->country = countryV;
+
     novus->next = NULL;
     novus->ad = NULL;
     novus->visited = novus->finished = 0;
@@ -551,63 +556,60 @@ void insertVertex(treeNode *treeRoot, listCriminal *LtCriminal, cyberAttackTypeL
 
 void createEdge(treeNode *treeRoot, listCriminal *LtCriminal, cyberAttackTypeList *catl)
 {
-    char ini, fin;
-    char *party[100];
+    int ini;
+    int fin;
     const char *src;
     edge *novus = (edge *)malloc(sizeof(edge));
     novus->next = NULL;
     vertex *aux;
     vertex *aux2;
-    if (headAdj == NULL)
-    {
-        printf("Graph is empty\n");
-        return; /// poner a donde retornar
-    }
+    system("cls");
 
-    printf("Attacking country: ");
-    ini = chooseNacionality(treeRoot, LtCriminal, catl);
+    printf("\nSelect the attacking country. ");
+    ini = chooseNacionality(treeRoot, LtCriminal, catl)->ID;
 
-    printf("\nAttacked country: ");
-    fin = chooseNacionality(treeRoot, LtCriminal, catl);
+    printf("\nSelect the Attacked country. ");
+    fin = chooseNacionality(treeRoot, LtCriminal, catl)->ID;
 
     printf("\nDuration of attack in seconds: ");
     scanf("%i", &novus->seconds);
     printf("\nAmount of gygabites affected: ");
     scanf("%i", &novus->gb);
-
-    novus->attackType = chooseCyberAttackType(treeRoot, LtCriminal, catl);
-
-    novus->cyberCriminal = chooseCyberCriminal(treeRoot, LtCriminal, catl);
+    printf("\n");
+    novus->attackType = chooseCyberAttackType(treeRoot, LtCriminal, catl)->name;
+    printf("\n");
+    novus->cyberCriminal = chooseCyberCriminal(treeRoot, LtCriminal, catl)->organization;
+    printf("\n");
 
     aux = headAdj;
     aux2 = headAdj;
+
     while (aux2 != NULL)
     {
-        if (aux2->country == fin)
+        if (aux2->country->ID == fin)
         {
             break;
         }
         aux2 = aux2->next;
     }
-    if (aux2 == NULL)
-    {
-        printf("Vertex not found\n");
-        return;
-    }
+
     while (aux != NULL)
     {
-        if (aux->country == ini)
+        if (aux->country->ID == ini)
         {
-            agregaredge(aux, aux2, novus);
-            return;
+            novus->attacker = aux->country->name;
+            novus->attacked = aux2->country->name;
+            addEdge(aux, aux2, novus);
+            system("cls");
+            printf("\nAttack registered successfully\n");
+            sleep(1);
+            cyberAttackMenu(treeRoot, LtCriminal, catl);
         }
         aux = aux->next;
     }
-    if (aux == NULL)
-        printf("Vertex not found\n");
 }
 
-void agregaredge(vertex *aux, vertex *aux2, edge *novus)
+void addEdge(vertex *aux, vertex *aux2, edge *novus)
 {
     edge *a;
     if (aux->ad == NULL)
@@ -618,12 +620,258 @@ void agregaredge(vertex *aux, vertex *aux2, edge *novus)
     else
     {
         a = aux->ad;
-        while (a->next != NULL)
+        while (a->next != NULL){
             a = a->next;
+        }
         novus->vrt = aux2;
         a->next = novus;
     }
 }
+
+void showGraph(treeNode *treeRoot, listCriminal *LtCriminal, cyberAttackTypeList *catl)
+{
+    system("cls");
+    vertex*aux = headAdj;
+    edge* ed;
+    printf("GRAPH\n");
+    printf("----------\n");
+    while(aux!=NULL){
+	    printf("%s--> ",aux->country->name);
+        if(aux->ad!=NULL){
+            ed=aux->ad;
+            while(ed!=NULL){
+			    printf("%s",ed->vrt->country->name);
+			    printf("[%s,",ed->attackType);
+			    printf(" %s,",ed->cyberCriminal);
+			    printf(" %i,",ed->gb);
+			    printf(" %i]  ",ed->seconds);
+                ed=ed->next;
+            }
+        }
+        printf("\n");
+        aux=aux->next;
+    }
+    printf("\n");
+    char nothing[100];
+    printf("\n<Press any key to return>\n");
+    fflush(stdin);
+    gets(nothing);
+    cyberAttackMenu(treeRoot, LtCriminal, catl);
+
+}
+
+void modifyGraph(treeNode *treeRoot, listCriminal *LtCriminal, cyberAttackTypeList *catl,vertex*pv,edge*ar)
+{
+    int option;
+    int x;
+    vertex*y = headAdj;
+    system("cls");
+    printf("%s --> %s\n", pv->country->name,ar->vrt->country->name);
+    printf("---------------\n");
+    printf("1. Attack duration: %i seconds\n", ar->seconds);
+    printf("2. Gb affected: %i\n",ar->gb);
+    printf("3. Attack type: %s\n",ar->attackType);
+    printf("4. Criminal: %s\n",ar->cyberCriminal);
+    printf("5. Attacked country\n");
+    printf("6. Attacking country\n");
+    printf("7. Go back\n");
+
+    printf("Number to modify: ");
+    fflush(stdin);
+    scanf("%d", &option);
+
+    switch (option)
+    {
+    case 1:
+        system("cls");
+        printf("Enter new duration:\n");
+        scanf("%d",&x);
+        ar->seconds = x;
+        system("cls");
+        printf("\nData updated\n");
+        sleep(1);
+        modifyGraph(treeRoot,LtCriminal,catl,pv,ar);
+        break;
+
+    case 2:
+        system("cls");
+        printf("Enter Gb:\n");
+        scanf("%d",&x);
+        ar->seconds = x;
+        system("cls");
+        printf("\nData updated\n");
+        sleep(1);
+        modifyGraph(treeRoot,LtCriminal,catl,pv,ar);
+        break;
+
+    case 3:
+        system("cls");
+        ar->attackType = chooseCyberAttackType(treeRoot, LtCriminal, catl)->name;
+        system("cls");
+        printf("\nData updated\n");
+        sleep(1);
+        modifyGraph(treeRoot,LtCriminal,catl,pv,ar);
+        break;
+
+    case 4:
+        system("cls");
+        ar->cyberCriminal = chooseCyberCriminal(treeRoot, LtCriminal, catl)->organization;
+        system("cls");
+        printf("\nData updated\n");
+        sleep(1);
+        modifyGraph(treeRoot,LtCriminal,catl,pv,ar);
+        break;
+
+    case 5:
+        system("cls");
+        printf("\nSelect the new Attacked country. ");
+        x = chooseNacionality(treeRoot, LtCriminal, catl)->ID;
+        while(y!=NULL){
+            if (y->country->ID == x){
+                break;
+            }
+            y = y->next;
+        }
+        ar->vrt = y;
+        printf("\nData updated\n");
+        sleep(1);
+        modifyGraph(treeRoot,LtCriminal,catl,pv,ar);
+        break;
+
+    /*case 6:
+        system("cls");
+        vertex*r = pv;
+        vertex*t = pv;
+        int id;
+        vertex*q;
+        edge*x = ar;
+        edge*y;
+        edge*m;
+        if (r->ad = ar){
+            r->ad = x->next;
+            x->next = NULL;
+            printf("\nSelect the new Attacking country. ");
+            id = chooseNacionality(treeRoot, LtCriminal, catl)->ID;
+            while(t!=NULL){
+                if(t->country->ID == id){
+                    q = t;
+                }
+                t = t->next;
+            }
+
+        }
+        else{
+            y = r->ad;
+            while (y->next!=x){
+                y = y->next;
+            }
+            y->next = x->next;
+            x->next = NULL;
+            printf("\nSelect the new Attacking country. ");
+            id = chooseNacionality(treeRoot, LtCriminal, catl)->ID;
+            fflush(stdin);
+            while(t!=NULL){
+                if(t->country->ID == id){
+                    q = t;
+                }
+                t = t->next;
+
+        }
+        if (q->ad == NULL){
+                q->ad = x;
+            }
+        else{
+            m = q->ad;
+            while(m->next!=NULL){
+                m = m->next;
+            }
+            m->next = x;
+        }
+        printf("\nData updated\n");
+        sleep(1);
+        cyberAttackMenu(treeRoot, LtCriminal, catl);
+        break;*/
+
+
+    case 7:
+        cyberAttackMenu(treeRoot, LtCriminal, catl);
+        break;
+
+    default:
+        system("cls");
+        printf("\n\nInvalid input.\n");
+        sleep(2);
+        modifyGraph(treeRoot,LtCriminal,catl,pv,ar);
+
+    }
+
+}
+
+void updateGraph(treeNode *treeRoot, listCriminal *LtCriminal, cyberAttackTypeList *catl)
+{
+    system("cls");
+    vertex*pv = headAdj;
+    vertex*pp = headAdj;
+    vertex*xx;
+    edge*ar;
+    edge*qq;
+    int id;
+    int id2;
+
+    printf("\nSelect the attacking country. ");
+    id = chooseNacionality(treeRoot, LtCriminal, catl)->ID;
+    fflush(stdin);
+    while(pp!=NULL){
+        if (pp->country->ID == id){
+            if (pp->ad == NULL){
+                printf("\n*This country has not carried out attacks*");
+                sleep(2);
+                updateGraph(treeRoot,LtCriminal,catl);
+
+            }
+            break;
+        }
+        pp = pp->next;
+    }
+    system("cls");
+    printf("\nSelect the Attacked country. ");
+    id2 = chooseNacionality(treeRoot, LtCriminal, catl)->ID;
+    pp = headAdj;
+    while(pp!=NULL){
+        if (pp->country->ID == id){
+            qq = pp->ad;
+            while(qq!=NULL){
+                if(qq->vrt->country->ID == id2){
+                    break;
+                }
+                qq = qq->next;
+            }
+        }
+        pp=pp->next;
+    }
+    if (qq == NULL){
+        printf("\n*The attacker has not hit this country*");
+        sleep(2);
+        updateGraph(treeRoot,LtCriminal,catl);
+    }
+
+    system("cls");
+
+    while (pv!=NULL){
+        if (pv->country->ID == id){
+            break;
+        }
+        pv = pv->next;
+    }
+    ar = pv->ad;
+    while(ar!=NULL){
+        if (ar->vrt->country->ID == id2){
+            modifyGraph(treeRoot,LtCriminal,catl,pv,ar);
+        }
+        ar = ar->next;
+    }
+}
+
 
 ///| | | | | | | | | | CYBERATTACK TYPE METHODS | | | | | | | |
 
@@ -907,13 +1155,15 @@ cyberAttackType *chooseCyberAttackType(treeNode *treeRoot, listCriminal *LtCrimi
         int status = 0;
 
         printf("Available types:");
+        printf("\n");
         showCyberAttackTypesWithCodes(treeRoot, LtCriminal, catl);
 
-        printf("\n\nSelected type:");
+        printf("\nSelected type:");
+        printf("\n");
         fflush(stdin);
         scanf("%s", &typeID);
-        
-        
+
+
         for (aux = catl->first; aux != NULL; aux = aux->next)
         {
             if (strcmp(aux->code, typeID) == 0)
@@ -950,12 +1200,12 @@ cyberCriminal *chooseCyberCriminal(treeNode *treeRoot, listCriminal *LtCriminal,
         printf("Available criminals:");
         showCriminalsWithOrganization(treeRoot, LtCriminal, catl);
 
-        printf("\n\nSelected criminal:");
+        printf("\nSelected criminal:");
         fflush(stdin);
         scanf("%s", &criminalID);
-        
-        
-        for (aux = catl->first; aux != NULL; aux = aux->next)
+
+
+        for (aux = LtCriminal->head; aux != NULL; aux = aux->next)
         {
             if (strcmp(aux->ID, criminalID) == 0)
             {
@@ -1362,6 +1612,7 @@ void addCountry(treeNode *treeRoot, listCriminal *LtCriminal, cyberAttackTypeLis
     const char *src;
     country *newCountry;
     newCountry = (country *)malloc(sizeof(country));
+    insertVertex(newCountry);
 
     int ID;
     printf("\nID:");
