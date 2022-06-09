@@ -738,20 +738,22 @@ void modifyGraph(treeNode *treeRoot, listCriminal *LtCriminal, cyberAttackTypeLi
         modifyGraph(treeRoot,LtCriminal,catl,pv,ar);
         break;
 
-    /*case 6:
+    case 6:
         system("cls");
         vertex*r = pv;
-        vertex*t = pv;
+        vertex*t = headAdj;
         int id;
         vertex*q;
         edge*x = ar;
         edge*y;
         edge*m;
-        if (r->ad = x){
+
+        printf("\nSelect the new Attacking country. ");
+        id = chooseNacionality(treeRoot, LtCriminal, catl)->ID;
+
+        if (r->ad == x){
             r->ad = x->next;
             x->next = NULL;
-            printf("\nSelect the new Attacking country. ");
-            id = chooseNacionality(treeRoot, LtCriminal, catl)->ID;
             while(t!=NULL){
                 if(t->country->ID == id){
                     q = t;
@@ -761,16 +763,15 @@ void modifyGraph(treeNode *treeRoot, listCriminal *LtCriminal, cyberAttackTypeLi
             }
 
         }
-        if (r->ad != x){
+
+        else{
             y = r->ad;
             while (y->next!=x){
                 y = y->next;
             }
             y->next = x->next;
             x->next = NULL;
-            printf("\nSelect the new Attacking country. ");
-            id = chooseNacionality(treeRoot, LtCriminal, catl)->ID;
-            fflush(stdin);
+
             while(t!=NULL){
                 if(t->country->ID == id){
                     q = t;
@@ -780,6 +781,7 @@ void modifyGraph(treeNode *treeRoot, listCriminal *LtCriminal, cyberAttackTypeLi
 
             }
         }
+
         if (q->ad == NULL){
                 q->ad = x;
         }
@@ -790,10 +792,11 @@ void modifyGraph(treeNode *treeRoot, listCriminal *LtCriminal, cyberAttackTypeLi
             }
             m->next = x;
         }
+
         printf("\nData updated\n");
         sleep(1);
         cyberAttackMenu(treeRoot, LtCriminal, catl);
-        break;*/
+        break;
 
     case 7:
         cyberAttackMenu(treeRoot, LtCriminal, catl);
