@@ -190,7 +190,7 @@ void cyberAttackMenu(treeNode *treeRoot, listCriminal *LtCriminal, cyberAttackTy
         break;
 
     case 4:
-        printf("Delete a Cyber Attack");
+        deleteAttackMenu(treeRoot,LtCriminal,catl);
         break;
 
     case 5:
@@ -771,7 +771,7 @@ void modifyGraph(treeNode *treeRoot, listCriminal *LtCriminal, cyberAttackTypeLi
             }
             y->next = x->next;
             x->next = NULL;
-
+            fflush(stdin);
             while(t!=NULL){
                 if(t->country->ID == id){
                     q = t;
@@ -831,7 +831,7 @@ void updateGraph(treeNode *treeRoot, listCriminal *LtCriminal, cyberAttackTypeLi
             if (pp->ad == NULL){
                 printf("\n*This country has not carried out attacks*");
                 sleep(2);
-                updateGraph(treeRoot,LtCriminal,catl);
+                cyberAttackMenu(treeRoot,LtCriminal,catl);
 
             }
             break;
@@ -877,6 +877,192 @@ void updateGraph(treeNode *treeRoot, listCriminal *LtCriminal, cyberAttackTypeLi
     }
 }
 
+void deleteAttackMenu(treeNode *treeRoot, listCriminal *LtCriminal, cyberAttackTypeList *catl)
+{
+   system("cls");
+    int option;
+    printf("[Cyber Attacks]");
+    printf("\nChoose one of the following options:\n------------------------------------\n1.Delete one attack carried out by a country\n2.Delete every attack carried out by a country\n3.Delete all attacks made against a country\n4.Go back\n");
+    scanf("%i", &option);
+    // END HEADER
+    vertex*v = headAdj;
+    vertex*w = headAdj;
+    edge*e;
+    edge*f;
+    int id;
+    int id2;
+
+    switch (option)
+    {
+    case 1:
+        system("cls"); //v es el puntero al país que ataca
+        printf("\nSelect the attacking country. ");
+        id = chooseNacionality(treeRoot, LtCriminal, catl)->ID;
+        while(v!=NULL){
+            if(v->country->ID == id){
+                break;
+            }
+            v = v->next;
+        }
+        if(v->ad==NULL){
+            printf("\n*This country has not carried out attacks*");
+            sleep(2);
+            deleteAttackMenu(treeRoot,LtCriminal,catl);
+        }
+
+        printf("\nSelect the Attacked country. ");
+        id2 = chooseNacionality(treeRoot, LtCriminal, catl)->ID;
+
+        while(w!=NULL){ //w es el puntero al pais atacado
+            if (w->country->ID == id){
+                e = w->ad;
+                while(e!=NULL){
+                    if(e->vrt->country->ID == id2){ //e es el puntero a la arista que se debe eliminar
+                        break;
+                    }
+                    e = e->next;
+                }
+            }
+            w=w->next;
+        }
+        if (e == NULL){
+            printf("\n*The attacker has not hit this country*");
+            sleep(2);
+            deleteAttackMenu(treeRoot,LtCriminal,catl);
+        }
+
+        if (v->ad == e){
+            v->ad = e->next;
+            e->next = NULL;
+            e->vrt = NULL;
+            free(e);
+            printf("\nAttack deleted");
+            sleep(1);
+            deleteAttackMenu(treeRoot,LtCriminal,catl);
+        }
+
+        f = v->ad;
+        while(f->next!=e){
+            f = f->next;
+        }
+
+        f->next = e->next;
+        e->next == NULL;
+        e->vrt == NULL;
+        free(e);
+        printf("\nAttack deleted");
+        sleep(1);
+        deleteAttackMenu(treeRoot,LtCriminal,catl);
+        break;
+
+    case 2:
+        system("cls"); //v es el puntero al país que ataca
+        printf("\nSelect the attacking country. ");
+        id = chooseNacionality(treeRoot, LtCriminal, catl)->ID;
+        while(v!=NULL){
+            if(v->country->ID == id){
+                break;
+            }
+            v = v->next;
+        }
+        if(v->ad==NULL){
+            printf("\n*This country has not carried out attacks*");
+            sleep(2);
+            deleteAttackMenu(treeRoot,LtCriminal,catl);
+        }
+        else{
+            e = v->ad;
+            while(e!=NULL){
+                e->vrt = NULL;
+                e = e->next;
+            }
+            e = v->ad;
+            free(e);
+        }
+
+        v->ad = NULL;
+        printf("\nAll attacks deleted");
+        sleep(1);
+        deleteAttackMenu(treeRoot,LtCriminal,catl);
+        break;
+
+    case 3:
+        system("cls");
+        printf("\nSelect the attacked country. ");
+        id = chooseNacionality(treeRoot, LtCriminal, catl)->ID;
+
+        while(v!=NULL){
+            e = v->ad;
+            int n = 1;
+            while(e!=NULL){
+                f = e->next;
+                if(e->vrt->country->ID == id && n == 1){
+                    while(n==1){
+                        e->vrt = NULL;
+                        v->ad = e->next;
+                        e->next = NULL;
+                        free(e);
+                        e = f;
+                        if(f==NULL){
+                            break;
+                        }
+                        f = f->next;
+                        if(e->vrt->country->ID!=id){
+                            n++;
+                        }
+                    }
+                }
+                n++;
+                if(f==NULL){
+                    break;
+                }
+                while(f->vrt->country->ID!=id){
+                    e = f;
+                    f = f->next;
+                    if(f==NULL){
+                        break;
+                    }
+                }
+                if(f==NULL){
+                    break;
+                }
+                if(f->vrt->country->ID == id){
+                    f->vrt = NULL;
+                    e->next = f->next;
+                    f->next = NULL;
+                    free(f);
+                    f = e->next;
+                    if(f==NULL){
+                        break;
+                    }
+                }
+            }
+            v = v->next;
+            }
+
+        while(w!=NULL){
+            if(w->country->ID==id){
+                break;
+            }
+            w=w->next;
+        }
+        printf("\nAll attacks towards %s have been deleted",w->country->name);
+        sleep(2);
+        deleteAttackMenu(treeRoot,LtCriminal,catl);
+        break;
+
+    case 4:
+        cyberAttackMenu(treeRoot, LtCriminal, catl);
+        break;
+
+    default:
+        system("cls");
+        printf("Invalid Input.");
+        sleep(1);
+        deleteAttackMenu(treeRoot, LtCriminal, catl);
+        break;
+}
+}
 
 ///| | | | | | | | | | CYBERATTACK TYPE METHODS | | | | | | | |
 
@@ -1095,7 +1281,7 @@ void updatecyberAttackType(treeNode *treeRoot, listCriminal *LtCriminal, const c
     {
         printf("\nCyberttack type not registered.");
         sleep(3);
-        modifyType(treeRoot, code, LtCriminal, catl, aux);
+        cyberAttackTypesMenu(treeRoot, LtCriminal, catl);
     }
 }
 
@@ -1205,7 +1391,7 @@ cyberCriminal *chooseCyberCriminal(treeNode *treeRoot, listCriminal *LtCriminal,
         printf("Available criminals:");
         showCriminalsWithOrganization(treeRoot, LtCriminal, catl);
 
-        printf("\nSelected criminal:\n");
+        printf("\n\nSelected criminal:\n");
         fflush(stdin);
         scanf("%s", &criminalID);
 
